@@ -1,0 +1,12 @@
+-- WLAN configuration
+station_cfg={}
+station_cfg.ssid="YourWlanSSID"
+station_cfg.pwd="YourWlanPassword"
+station_cfg.save=true
+
+-- MQTT config
+mqtt_cfg={}
+mqtt_cfg.port=12542
+mqtt_cfg.server="m21.cloudmqtt.com"
+mqtt_cfg.user="user"
+mqtt_cfg.pwd="YourPassword"
