@@ -1,5 +1,6 @@
 -- Wlan configuration
 require "config"
+require "si7021"
 
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
   print("\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..T.BSSID.."\n\tChannel: "..T.channel)
@@ -19,45 +20,19 @@ result = wifi.sta.config(station_cfg)
 id  = 0x0
 sda = 5
 scl = 6
-dev_addr = 0x40
-RHumidityHoldCmd = 0xE5
-TempHoldCmd = 0xE3
 
-i2c.setup(id, sda, scl, i2c.SLOW)
+-- Use hum/temp sensor
+-- FIXME: temporal coupling
+setupI2C(id, sda, scl)
+read_hum(id)
+read_temp(id)
 
-function writeI2C(id, dev_addr, set) 
-  i2c.start(id)
-  i2c.address(id, dev_addr, i2c.TRANSMITTER)
-  i2c.write(id, set)
-  i2c.stop(id)
-end
-
-function readI2C(id, dev_addr)          
-  i2c.start(id)
-  i2c.address(id, dev_addr, i2c.RECEIVER)
-  data = i2c.read(id, 2)
-  i2c.stop(id)
-  rval = (bit.lshift(string.byte(data, 1), 8) + string.byte(data, 2))
-  status = bit.band(rval, 3)    --save status bits
-  rval = bit.band(rval, 65532)  --clear status bits
-  return rval, status
-end
-
-function read_hum(id, dev_addr)
-  writeI2C(id, dev_addr, RHumidityHoldCmd)
-  readI2C(id, dev_addr)       
-  hum = -6.0+125.0/65536.0*rval
-  print("\nStatus : "..status)
-  print("Humidity : "..string.format("%.2f",hum).."%")
-end
-
-function read_temp(id, dev_addr)
-   writeI2C(id, dev_addr, TempHoldCmd)
-   readI2C(id, dev_addr)      
-   temp = -46.85+175.72/65536.0*rval
-   print("Status : "..status)
-   print("Temperature : "..string.format("%.2f",temp).."C")
-end
-
-read_hum(id, dev_addr)
-read_temp(id, dev_addr)
+-- Simplest webserver
+srv = net.createServer(net.TCP)
+srv:listen(80, function(conn)
+    conn:on("receive", function(sck, payload)
+        print(payload)
+        sck:send("HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>NodeMCU</h1>")
+    end)
+    conn:on("sent", function(sck) sck:close() end)
+end)
