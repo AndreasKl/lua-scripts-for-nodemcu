@@ -1,12 +1,19 @@
+local moduleName = ...
+local M = {}
+_G[moduleName] = M
+
 -- WLAN configuration
-station_cfg={}
-station_cfg.ssid="YourWlanSSID"
-station_cfg.pwd="YourWlanPassword"
-station_cfg.save=true
+M.station_cfg={}
+M.station_cfg.ssid="YourWlanSSID"
+M.station_cfg.pwd="YourWlanPassword"
+M.station_cfg.save=true
 
 -- MQTT config
-mqtt_cfg={}
-mqtt_cfg.port=12542
-mqtt_cfg.server="m21.cloudmqtt.com"
-mqtt_cfg.user="user"
-mqtt_cfg.pwd="YourPassword"
+M.mqtt_cfg={}
+M.mqtt_cfg.port=12542
+M.mqtt_cfg.server="m21.cloudmqtt.com"
+M.mqtt_cfg.user="user"
+M.mqtt_cfg.pwd="YourPassword"
+M.mqtt_cfg.topic="A_TOPIC"
+
+return M
