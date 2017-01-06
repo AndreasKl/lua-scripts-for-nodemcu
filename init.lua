@@ -1,6 +1,5 @@
 -- Wlan configuration
 require "config"
-require "si7021"
 
 wifi.eventmon.register(wifi.eventmon.STA_CONNECTED, function(T)
   print("\n\tSTA - CONNECTED".."\n\tSSID: "..T.SSID.."\n\tBSSID: "..T.BSSID.."\n\tChannel: "..T.channel)
@@ -12,27 +11,43 @@ end)
 
 wifi.eventmon.register(wifi.eventmon.STA_GOT_IP, function(T)
   print("\n\tSTA - GOT IP".."\n\tStation IP: "..T.IP.."\n\tSubnet mask: "..T.netmask.."\n\tGateway IP: "..T.gateway)
+  -- Upload measures when connected
 end)
 
 -- Connect to wlan
-result = wifi.sta.config(station_cfg)
+if wifi.sta.status() ~= 5 then
+  wifi.setmode(wifi.STATION)
+  wifi.sta.config(station_cfg)
+  wifi.sta.connect()
+  tmr.delay(10000000)
+  print(wifi.sta.status())
+  print(wifi.sta.getip())
+end
 
-id  = 0x0
-sda = 5
-scl = 6
+local si7021 = require "si7021"
+local sda = 5
+local scl = 6
 
 -- Use hum/temp sensor
 -- FIXME: temporal coupling
-setupI2C(id, sda, scl)
-read_hum(id)
-read_temp(id)
+si7021.setupI2C(sda, scl)
+local humidity = si7021.read_humidity()
+local temp = si7021.read_temp()
+print("Temperature : "..string.format("%.2f",temp).."C")
+print("Humidity : "..string.format("%.2f", humidity).."%")
+ 
+si7021 = nil
+package.loaded.si7021 = nil
 
--- Simplest webserver
-srv = net.createServer(net.TCP)
-srv:listen(80, function(conn)
-    conn:on("receive", function(sck, payload)
-        print(payload)
-        sck:send("HTTP/1.0 200 OK\r\nContent-Type: text/html\r\n\r\n<h1>NodeMCU</h1>")
-    end)
-    conn:on("sent", function(sck) sck:close() end)
-end)
+-- Push data to mqtt endpoint
+if mqttClient == nil then
+  mqttClient = mqtt.Client("esp8266", 120, mqtt_cfg.user, mqtt_cfg.pwd)
+end
+
+mqttClient:connect(mqtt_cfg.server, mqtt_cfg.port, 1, 
+  function(client) 
+    mqttClient:publish("/sensor/tumble_dryer","T : "..string.format("%.2f",temp),0,0, function(client) print("sent") end)
+  end, 
+  function(client, reason) 
+    print("failed reason: "..reason) 
+  end)

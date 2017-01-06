@@ -16,6 +16,8 @@ Command to flash the firmware to my 32Mbit flash on OSX. Stock firmware was a NO
 > build 	built on: 2016-12-19 23:24
 > powered by Lua 5.1.4 on SDK 1.5.4.1(39cb9a32)
 
++sntp, +rtctime, +rtcfifo, +rtcmem. -http
+
 ## Python Notes
 Need 2.7.x for esptool.py and pyserial `sudo pip install pyserial` module for com. 
 
