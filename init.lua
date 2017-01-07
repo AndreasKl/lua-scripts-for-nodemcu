@@ -92,7 +92,7 @@ function publishAndSchedule()
 end
 
 function publishSensorData()
-  local temp, humidity = 1,1 --FIXME: readSensor()
+  local temp, humidity = readSensor()
   local sec, usec = rtctime.get()
   return mqttClient:publish(cfg.mqtt_cfg.topic, "E:"..sec.."T:"..temp.."|H:"..humidity, 0, 1)
 end
