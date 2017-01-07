@@ -28,5 +28,12 @@ The sensor is connected using the following wiring:
 > SCL -> D6
 > SCA -> D5
 
+## Uploading source code
+Install https://github.com/kmpm/nodemcu-uploader via `pip install nodemcu-uploader`
+upload source using `nodemcu-uploader  --port /dev/tty.SLAB_USBtoUART upload si7021.lua`.
+
+## Monitoring output on MacOS
+`screen /dev/tty.SLAB_USBtoUART 115200` the boot process runs with 9.6kbps and changes to 115.2kbps when firmware gets control. To kill the screen press ctrl + a and then a k.
+
 ## WLAN
 Copy config.lua.default to config.lua and amend your config. Upload the config to your flash.

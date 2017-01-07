@@ -7,10 +7,6 @@ local device_address = 0x40
 local relative_humidity_hold_cmd = 0xE5
 local temp_hold_cmd = 0xE3
 
-function M.setupI2C(sda, scl)
-  i2c.setup(id, sda, scl, i2c.SLOW)
-end
-
 local function writeI2C(set)
   i2c.start(id)
   i2c.address(id, device_address, i2c.TRANSMITTER)
@@ -27,6 +23,10 @@ local function readI2C()
   local status = bit.band(value, 3)
   value = bit.band(value, 65532)
   return value, status
+end
+
+function M.setupI2C(sda, scl)
+  i2c.setup(id, sda, scl, i2c.SLOW)
 end
 
 function M.read_humidity()
