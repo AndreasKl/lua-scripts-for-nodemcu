@@ -94,7 +94,7 @@ end
 function publishSensorData()
   local temp, humidity = readSensor()
   local sec, usec = rtctime.get()
-  return mqttClient:publish(cfg.mqtt_cfg.topic, "E:"..sec.."T:"..temp.."|H:"..humidity, 0, 1)
+  return mqttClient:publish(cfg.mqtt_cfg.topic, "E:"..sec.."|T:"..temp.."|H:"..humidity, 0, 1)
 end
 
 function readSensor()
